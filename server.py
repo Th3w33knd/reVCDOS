@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request
-from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.responses import StreamingResponse, FileResponse, Response
 from fastapi.staticfiles import StaticFiles
+from starlette.background import BackgroundTask
 import httpx
 
 app = FastAPI()
@@ -16,17 +17,24 @@ def request_to_url(request: Request, path: str, base_url = VCSKY_BASE_URL):
     return url
 
 async def _proxy_request(request: Request, url: str):
-    client = httpx.AsyncClient()
-    headers = {k: v for k, v in request.headers.items() if k.lower() not in ["host", "referer"]}
-    req = client.build_request(request.method, url, headers=headers, content=request.stream())
+    client = httpx.AsyncClient(timeout=None)
+    headers = {k: v for k, v in request.headers.items() if k.lower() not in ["host", "content-length"]}
+    
+    req = client.build_request(request.method, url, headers=headers)
     r = await client.send(req, stream=True)
     
-    hop_by_hop = ["connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
-                  "te", "trailers", "transfer-encoding", "upgrade", "content-encoding", "content-length"]
-    response_headers = {k: v for k, v in r.headers.items() if k.lower() not in hop_by_hop}
+    excluded_headers = {"content-length", "transfer-encoding", "connection", "keep-alive", "upgrade", "content-encoding", "x-content-encoding"}
+    response_headers = {k: v for k, v in r.headers.items() if k.lower() not in excluded_headers}
     
-    return StreamingResponse(r.aiter_raw(), status_code=r.status_code, headers=response_headers, background=client.aclose)
+    response_headers["Cross-Origin-Opener-Policy"] = "same-origin"
+    response_headers["Cross-Origin-Embedder-Policy"] = "require-corp"
 
+    return StreamingResponse(
+        r.aiter_bytes(),
+        status_code=r.status_code,
+        headers=response_headers,
+        background=BackgroundTask(client.aclose)
+    )
 
 @app.api_route("/vcsky/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"])
 async def vc_sky_proxy(request: Request, path: str):
@@ -42,7 +50,10 @@ async def vc_br_proxy(request: Request, path: str):
 
 @app.get("/")
 async def read_index():
-    return FileResponse("dist/index.html")
+    return FileResponse("dist/index.html", headers={
+        "Cross-Origin-Opener-Policy": "same-origin",
+        "Cross-Origin-Embedder-Policy": "require-corp"
+    })
 
 app.mount("/", StaticFiles(directory="dist"), name="root")
 
