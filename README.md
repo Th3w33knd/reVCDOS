@@ -99,6 +99,7 @@ Based on open-source re3/reVC project. Not affiliated with Rockstar Games.
 ---
 
 **Authors:** DOS Zone ([@specialist003](https://github.com/okhmanyuk-ev), [@caiiiycuk](https://www.youtube.com/caiiiycuk), [@SerGen](https://t.me/ser_var))
-**Deobfuscated by: [@Lolendor](https://github.com/Lolendor)
+
+**Deobfuscated by**: [@Lolendor](https://github.com/Lolendor)
 
 **Russian translation:** [GamesVoice](https://www.gamesvoice.ru/)
