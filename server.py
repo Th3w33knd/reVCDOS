@@ -23,11 +23,11 @@ async def _proxy_request(request: Request, url: str):
     return StreamingResponse(r.aiter_raw(), status_code=r.status_code, headers=r.headers, background=client.aclose)
 
 @app.api_route("/vcsky/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"])
-async def vc_assets_proxy(request: Request, path: str):
+async def vc_sky_proxy(request: Request, path: str):
     return await _proxy_request(request, request_to_url(request, path))
 
 @app.api_route("/vcbr/{path:path}", methods=["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"])
-async def vc_assets_proxy(request: Request, path: str):
+async def vc_br_proxy(request: Request, path: str):
     return await _proxy_request(request, request_to_url(request, path, BR_BASE_URL))
 
 # local use
