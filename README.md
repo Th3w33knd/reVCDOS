@@ -250,6 +250,8 @@ Do what you want. Not affiliated with Rockstar Games.
 
 **Russian translation:** [GamesVoice](https://www.gamesvoice.ru/)
 
+**Some more files were required for being Fully Local:** [Th3w33knd](https://github.com/Th3w33knd)
+
 ## Support me
 
 If you find this project useful:
