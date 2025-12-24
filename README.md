@@ -16,6 +16,9 @@ This project is a community effort to preserve the incredible HTML5 port of GTA:
     2.  Implementing a caching system to download and save surviving assets.
     3.  Removing dependencies on the defunct infrastructure.
 
+> [!NOTE]
+> We still do not have the source code for the files in `vcbr` (the compiled WebAssembly modules), which contain the core logic of the game. This project wraps and serves those existing binaries.
+
 **Stability Test**: Watch the server in action here: [GTA VC Server Stability Test](https://www.youtube.com/watch?v=C8nK81N4iBs)
 
 ## Quick Start
