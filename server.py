@@ -109,7 +109,7 @@ async def route_vcbr(path: str):
 async def route_vcsky(path: str):
     if path == "sha256sums.txt":
         return serve_file(os.path.join(DIR_VCSKY, path))
-    return await fetch_and_cache(path, os.path.join(DIR_VCSKY, "fetched"), CDN_VCSKY)
+    return await fetch_and_cache(path, DIR_VCSKY, CDN_VCSKY)
 
 @app.get("/")
 async def read_index():

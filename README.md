@@ -2,6 +2,13 @@
 
 Web-based port of GTA: Vice City running in browser via WebAssembly.
 
+## Recent Updates (Dec 2025)
+
+*   **New Cheat Command**: Added `pixi run cheat` to automatically launch the game with cheats enabled and open the browser.
+*   **Asset Management**: Updated server logic to correctly handle `vcsky/fetched` assets without duplication.
+*   **Documentation**: Added comprehensive "Quick Start", "Download Assets" (with links), and "Project Structure" sections.
+*   **Fixes**: Solved directory nesting issues and added `vcbr` to `.gitignore` to prevent large file commit errors.
+
 You can check which files I made changes in commit section.
 
 ## History & Restoration
