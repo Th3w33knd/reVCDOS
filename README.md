@@ -100,6 +100,33 @@ This project is a community effort to preserve the incredible HTML5 port of GTA:
 - Dependencies from `requirements.txt`
 - **Pixi** (Recommended for package management)
 
+## Game Modes
+
+The server supports different modes to suit your setup:
+
+### 1. Online Mode (Recommended)
+**Command:** `pixi run online`
+
+*   **Behavior**: "Smart Caching". The server checks your local `vcsky/` folder first.
+    *   **If file exists**: Serves it locally (Fast, Offline-capable).
+    *   **If file missing**: Downloads it from the CDN and saves it to `vcsky/` for future use.
+*   **Best for**: Most users. It ensures you can play immediately even if you haven't manually downloaded every single asset.
+
+### 2. Offline Mode (Strict)
+**Command:** `pixi run offline`
+
+*   **Behavior**: "Strict Local". The server serves **ONLY** files present in your `vcsky/` and `vcbr/` folders.
+    *   **If file missing**: Returns a 404 Error. No network requests are made.
+*   **Best for**: Users who have manually downloaded the full asset packs and want to ensure no background network activity. Ideal for air-gapped or fully offline setups.
+
+### 3. Cheat Mode
+**Command:** `pixi run cheat`
+
+*   **Behavior**: Same as **Online Mode**, but automatically:
+    1.  Enables the built-in cheat engine.
+    2.  Opens your default web browser to the game URL (`http://localhost:8000/?cheats=1`).
+*   **Best for**: Jumping straight into the action with cheats enabled (Press **F3** in-game).
+
 ## Setup & Running
 
 ### Option 1: Using Pixi (Recommended)
