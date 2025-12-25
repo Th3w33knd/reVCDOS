@@ -11,13 +11,13 @@ const params = new URLSearchParams(window.location.search);
 const replaceFetch = (str) => str.replace("https://cdn.dos.zone/vcsky/", "/vcsky/")
 const replaceBR = "/vcbr/"
 
-const autoFullScreen = true;
+const autoFullScreen = params.get('fullscreen') !== "0";
 
 // F3 for activation (cheat-menu)
 const cheatsEnabled = params.get('cheats') === "1"
 
 // full game access
-if (true)
+if (params.get('request_original_game') !== "1")
     localStorage.setItem('vcsky.haveOriginalGame', 'true');
 
 const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);

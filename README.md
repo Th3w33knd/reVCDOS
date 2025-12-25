@@ -130,6 +130,8 @@ python server.py --port 3000 --custom_saves --login admin --password secret123 -
 |-----------|--------|-------------|
 | `lang` | `en`, `ru` | Game language |
 | `cheats` | `1` | Enable cheat menu (F3) |
+| `request_original_game` | `1` | Request original game files before play |
+| `fullscreen` | `0` | Disable auto-fullscreen |
 
 
 **Examples:**
