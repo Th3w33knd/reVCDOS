@@ -85,9 +85,12 @@ async def read_index():
 
 app.mount("/", StaticFiles(directory="dist"), name="root")
 
-if __name__ == "__main__":
+def start_server(app=app, host="0.0.0.0", port=args.port):
     import uvicorn
+    uvicorn.run(app, host=host, port=port)
+
+if __name__ == "__main__":
     print(f"Starting server on http://localhost:{args.port}")
     print(f"vcsky: {'local' if args.vcsky_local else 'proxy'} ({VCSKY_BASE_URL if not args.vcsky_local else 'vcsky/'})")
     print(f"vcbr: {'local' if args.vcbr_local else 'proxy'} ({VCBR_BASE_URL if not args.vcbr_local else 'vcbr/'})")
-    uvicorn.run(app, host="0.0.0.0", port=args.port)
+    start_server()
