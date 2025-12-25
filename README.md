@@ -2,7 +2,7 @@ reVCDOS - HTML5 Port
 
 Running in browser via WebAssembly.
 
-You can check which files I made changes in commit section.
+You can check which files I made changes in commit section. Only for *educational* purpose only
 
 ## History & Restoration
 
