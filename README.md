@@ -1,4 +1,4 @@
-# GTA Vice City — HTML5 Port (DOS Zone)
+# GTA Vice City - HTML5 Port (DOS Zone)
 
 Web-based port of GTA: Vice City running in browser via WebAssembly.
 
@@ -225,8 +225,8 @@ python server.py --vcsky_cache --vcbr_cache
 | `cheats` | `1` | Enable cheat menu (F3) |
 
 **Examples:**
-- `http://localhost:8000/?lang=ru` — Russian version
-- `http://localhost:8000/?lang=en&cheats=1` — English + cheats
+- `http://localhost:8000/?lang=ru` - Russian version
+- `http://localhost:8000/?lang=en&cheats=1` - English + cheats
 
 ## Project Structure
 
@@ -275,7 +275,7 @@ python server.py --vcsky_cache --vcbr_cache
 
 When local saves are enabled (`--custom_saves` flag), enter any 5-character identifier in the "js-dos key" input field on the start page. This identifier will be used to store your saves in the `saves/` directory on the server.
 
-Example: Enter `mykey` or `12345` — saves will be stored as `mykey_vcsky.saves` or `12345_vcsky.saves`.
+Example: Enter `mykey` or `12345` - saves will be stored as `mykey_vcsky.saves` or `12345_vcsky.saves`.
 
 ## Controls (Touch)
 
