@@ -339,7 +339,7 @@ If you find this project useful:
 ## Changelog
 
 ### v1.1.0 - Tailscale & Localization Update
-*   **Remote Access**: Server now binds to  .0.0.0 to allow connections from LAN and Tailscale.
+*   **Remote Access**: Server now binds to 0.0.0.0 to allow connections from LAN and Tailscale.
 *   **Documentation**: Added guide for connecting via Tailscale/LAN and handling Secure Contexts.
 *   **Localization**: Fixed Russian text in the main menu (Subscribe for news and releases).
 *   **Credits**: Added comprehensive credits for Deobfuscation, Translation, and Offline Support.
