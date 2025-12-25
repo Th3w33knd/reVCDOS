@@ -21,9 +21,11 @@ This project is a community effort to preserve the incredible HTML5 port of GTA:
 > [!NOTE]
 > We still do not have the source code for the files in `vcbr` (the compiled WebAssembly modules), which contain the core logic of the game. This project wraps and serves those existing binaries.
 
-**Stability Test**: Watch the server in action here: [GTA VC Server Stability Test](https://www.youtube.com/watch?v=C8nK81N4iBs)
+**Stability Test**: Watch the server in action here: [GTA reVCDOS Server Stability Test](https://www.youtube.com/watch?v=C8nK81N4iBs)
 
 ## Quick Start
+
+**Installation Tutorial**: Video only covers installation in Windows 11 + Python : [Install reVCDOS GTA:Vice City](https://youtu.be/AEvh2ok-nvs?si=ibyGHrfqiBgYT39c)
 
 1.  **Clone the repository**:
     ```bash
