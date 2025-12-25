@@ -122,10 +122,12 @@ The server supports different modes to suit your setup:
 ### 3. Cheat Mode
 **Command:** `pixi run cheat`
 
-*   **Behavior**: Same as **Online Mode**, but automatically:
-    1.  Enables the built-in cheat engine.
-    2.  Opens your default web browser to the game URL (`http://localhost:8000/?cheats=1`).
-*   **Best for**: Jumping straight into the action with cheats enabled (Press **F3** in-game).
+*   **Behavior**: **Online Mode + Cheats + Auto-open**.
+    *   Starts the server in Online Mode (Smart Caching).
+    *   Automatically opens your default web browser.
+    *   Enables the built-in cheat engine.
+*   **How to use**: Once the game loads, press **F3** to open the cheat menu (Memory Scanner, Noclip, etc.).
+*   **Best for**: Jumping straight into the action with cheats enabled.
 
 ## Setup & Running
 
