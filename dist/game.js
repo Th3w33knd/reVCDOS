@@ -48,7 +48,7 @@ let haveOriginalGame = false;
             downloading: "Downloading",
             enterKey: "enter your key",
             clickToContinue: "Click to continue...",
-            enterJsDosKey: "Enter js-dos key",
+            enterJsDosKey: "Enter js-dos key (5 len)",
             portBy: "HTML5 port by:",
             ruTranslate: "",
             demoOffDisclaimer: "Due to the unexpectedly high popularity of the project, resulting in significant traffic costs, and in order to avoid any risk of the project being shut down due to rights holder claims, we have disabled the demo version. You can still run the full version by providing the original game resources.",
@@ -71,7 +71,7 @@ let haveOriginalGame = false;
             downloading: "Загрузка",
             enterKey: "введите ваш ключ",
             clickToContinue: "Нажмите для продолжения...",
-            enterJsDosKey: "Введите ключ js-dos",
+            enterJsDosKey: "Введите ключ js-dos (5 букв)",
             portBy: "Авторы HTML5 порта:",
             ruTranslate: `
 <div class="translated-by">
@@ -86,9 +86,9 @@ let haveOriginalGame = false;
     let currentLanguage = navigator.language.split("-")[0] === "ru" ? "ru" : "en";
     if (params.get("lang") === "ru") {
         currentLanguage = "ru";
-        // }
-        // if (params.get("lang") === "en") {
-    } else {
+    // }
+    // if (params.get("lang") === "en") {
+    }else{
         currentLanguage = "en";
     }
 
@@ -98,15 +98,15 @@ let haveOriginalGame = false;
 })();
 
 if (params.get('lang') === 'ru') {
-    data_content = `${replaceBR}vc-sky-ru-v6.data`;
-    wasm_content = `${replaceBR}vc-sky-ru-v6.wasm`;
-    // } else if (params.get('lang') === 'ru') {
-    //     data_content = `${replaceBR}vc-sky-ru-v6.data.br`;
-    //     wasm_content = `${replaceBR}vc-sky-ru-v6.wasm.br`;
+    data_content = `${replaceBR}vc-sky-ru-v6.data.br`;
+    wasm_content = `${replaceBR}vc-sky-ru-v6.wasm.br`;
+// } else if (params.get('lang') === 'ru') {
+//     data_content = `${replaceBR}vc-sky-ru-v6.data.br`;
+//     wasm_content = `${replaceBR}vc-sky-ru-v6.wasm.br`;
 } else {
-    data_content = `${replaceBR}vc-sky-en-v6.data`;
-    wasm_content = `${replaceBR}vc-sky-en-v6.wasm`;
-    //     data_content = "index.old.data";
+    data_content = `${replaceBR}vc-sky-en-v6.data.br`;
+    wasm_content = `${replaceBR}vc-sky-en-v6.wasm.br`;
+//     data_content = "index.old.data";
 }
 // data_content = `${replaceBR}vc-sky-ru-v6.data.br`;
 // wasm_content = `${replaceBR}vc-sky-ru-v6.wasm.br`;
@@ -213,7 +213,6 @@ function setStatus(text) {
 
 async function loadGame(data) {
     var Module = {
-        ALLOW_MEMORY_GROWTH: 1,
         mainCalled: () => {
             try {
                 Module.FS.unlink("/vc-assets/local/revc.ini");
@@ -522,7 +521,7 @@ const clickToPlayButton = document.getElementById('click-to-play-button');
 clickToPlayButton.textContent = t('clickToPlayDemo');
 clickToPlayButton.classList.add('disabled');
 const demoOffDisclaimer = document.getElementById('demo-off-disclaimer');
-demoOffDisclaimer.textContent = "* " + t('demoOffDisclaimer');
+demoOffDisclaimer.textContent = "* " +t('demoOffDisclaimer');
 const cloudSavesLink = document.getElementById('cloud-saves-link');
 cloudSavesLink.textContent = t('cloudSaves');
 cloudSavesStatus.textContent = t('enterKey');
@@ -555,7 +554,7 @@ function ownerShipNotConfirmed() {
     localStorage.removeItem('vcsky.haveOriginalGame');
     disclaimerCheckbox.checked = false;
     clickToPlayButton.textContent = t('clickToPlayDemo');
-    demoOffDisclaimer.textContent = "* " + t('demoOffDisclaimer');
+    demoOffDisclaimer.textContent = "* " +t('demoOffDisclaimer');
     haveOriginalGame = false;
     clickToPlayButton.classList.add('disabled');
 };
