@@ -345,6 +345,11 @@ If you find this project useful:
 
 ## Changelog
 
+### v1.2.0 - Upstream Sync & Fixes
+*   **Upstream Merge**: Merged latest changes from `Lolendor/reVCDOS` (Google Colab support, license, graphics updates).
+*   **Bug Fix**: Fixed `server.py` startup issue preventing the server from running.
+*   **Conflict Resolution**: Preserved local preferences (Offline Mode, Cheats) during merge.
+
 ### v1.1.0 - Tailscale & Localization Update
 *   **Remote Access**: Server now binds to 0.0.0.0 to allow connections from LAN and Tailscale.
 *   **Documentation**: Added guide for connecting via Tailscale/LAN and handling Secure Contexts.
