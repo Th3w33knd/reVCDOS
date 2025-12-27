@@ -1,4 +1,4 @@
-# GTA Vice City - HTML5 Port (DOS Zone)
+reVCDOS - HTML5 Port
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/13GFRIxTwVbixv0Vup9MSVXnB4SLmA3G7?usp=sharing)
 
@@ -6,17 +6,15 @@
 
 Web-based port of GTA: Vice City running in browser via WebAssembly.
 
-
-
-You can check which files I made changes in commit section.
+You can check which files I made changes in commit section. Only for *educational* purpose only
 
 ## History & Restoration
 
-This project is a community effort to preserve the incredible HTML5 port of GTA: Vice City.
+This project is a community effort to preserve the incredible HTML5 port.
 
-*   **The Ban**: Rockstar Games issued a takedown for the original web port, shutting down the official servers and CDNs (`cdn.dos.zone`).
+*   **The Ban**: Takedown for the original web port, shutting down the official servers and CDNs.
 *   **Deobfuscation**: The source code was deobfuscated to allow for self-hosting and study.
-*   **WebAssembly Magic**: Unlike standard PC mods (e.g., *Vice City: Reviced*), this port runs entirely in the browser using WebAssembly. It streams assets on-the-fly, making it playable on almost any device with a browser and keyboard, without installation.
+*   **WebAssembly Magic**: Unlike standard PC mods, this port runs entirely in the browser using WebAssembly. It streams assets on-the-fly, making it playable on almost any device with a browser and keyboard, without installation.
 *   **Restoring Functionality**: After the shutdown, the game would hang on a black screen because it couldn't fetch core data files (`.wasm`, `.data`) or assets from the dead CDNs. This repository solves that by:
     1.  Providing a server that serves these critical files locally.
     2.  Implementing a caching system to download and save surviving assets.
@@ -25,9 +23,11 @@ This project is a community effort to preserve the incredible HTML5 port of GTA:
 > [!NOTE]
 > We still do not have the source code for the files in `vcbr` (the compiled WebAssembly modules), which contain the core logic of the game. This project wraps and serves those existing binaries.
 
-**Stability Test**: Watch the server in action here: [GTA VC Server Stability Test](https://www.youtube.com/watch?v=C8nK81N4iBs)
+**Stability Test**: Watch the server in action here: [reVCDOS Server Stability Test](https://www.youtube.com/watch?v=C8nK81N4iBs)
 
 ## Quick Start
+
+**Installation Tutorial**: Video only covers installation in Windows 11 + Python : [Install reVCDOS](https://youtu.be/AEvh2ok-nvs?si=ibyGHrfqiBgYT39c)
 
 1.  **Clone the repository**:
     ```bash
@@ -37,7 +37,7 @@ This project is a community effort to preserve the incredible HTML5 port of GTA:
 
 2.  **Download Assets**:
     > [!WARNING]
-    > These files contain copyrighted materials from Rockstar Games. You must own the original game to use them legally.
+    > These files contain copyrighted materials. You must own the original game to use them legally.
 
     *   **vcbr** (Core Data): [Download](https://gofile.io/d/ceuXTa) (or [Older Version](https://gofile.io/d/U63PZO))
     *   **vcsky** (Assets): [Download](https://gofile.io/d/9QsvMn)
@@ -292,7 +292,7 @@ Touch controls appear automatically on mobile devices. Virtual joysticks for mov
 
 Enable with `?cheats=1`, press **F3** to open menu:
 - Memory scanner (find/edit values)
-- All classic GTA VC cheats
+- All classic cheats
 - AirBreak (noclip mode)
 
 ## Remote Access (Tailscale / LAN)
@@ -353,5 +353,5 @@ If you find this project useful:
 
 ### v1.0.0 - Initial Enhancements
 *   **Offline Mode**: Game assets are cached locally for offline play.
-*   **Cheats**: Added cheat menu (F3) and support for classic GTA VC cheats.
+*   **Cheats**: Added cheat menu (F3) and support for classic cheats.
 *   **Smart Caching**: Optimized asset loading strategy.
