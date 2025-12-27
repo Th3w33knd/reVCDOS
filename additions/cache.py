@@ -100,7 +100,7 @@ async def proxy_and_cache(request: Request, url: str, local_path: str = None, di
     req = client.build_request(request.method, url, headers=headers)
     r = await client.send(req, stream=True)
     
-    excluded_headers = {"transfer-encoding", "connection", "keep-alive", "upgrade"}
+    excluded_headers = {"transfer-encoding", "connection", "keep-alive", "upgrade", "content-security-policy"}
     response_headers = {k: v for k, v in r.headers.items() if k.lower() not in excluded_headers}
     response_headers["Cross-Origin-Opener-Policy"] = "same-origin"
     response_headers["Cross-Origin-Embedder-Policy"] = "require-corp"

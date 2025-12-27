@@ -1,27 +1,143 @@
 
 (function() {
+    // Touch device detection
+    const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isTouch = isMobile && window.matchMedia('(pointer: coarse)').matches;
+    
     const style = document.createElement('style');
     style.textContent = `
         #cheat-engine-ui {
             position: fixed;
             top: 0;
             right: 0;
-            width: 340px;
+            width: ${isTouch ? '100vw' : '340px'};
             height: 100vh;
-            background: rgba(10, 10, 10, 0.9);
+            background: rgba(10, 10, 10, 0.95);
             backdrop-filter: blur(15px);
             color: #eee;
             font-family: 'Consolas', 'Monaco', monospace;
-            padding: 20px 20px 100px 20px; /* Extra bottom padding for scroll */
+            padding: ${isTouch ? '15px 15px 150px 15px' : '20px 20px 100px 20px'};
             z-index: 10000;
             display: none;
             flex-direction: column;
-            gap: 15px;
+            gap: ${isTouch ? '12px' : '15px'};
             overflow-y: auto;
             user-select: none;
-            border-left: 2px solid #ff00ff;
+            border-left: ${isTouch ? 'none' : '2px solid #ff00ff'};
             box-shadow: -10px 0 30px rgba(0,0,0,0.8);
             box-sizing: border-box;
+        }
+        
+        /* Touch toggle button */
+        #cheat-toggle-btn {
+            display: ${isTouch ? 'flex' : 'none'};
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 0, 255, 0.3);
+            border: 2px solid #ff00ff;
+            border-radius: 50%;
+            color: #ff00ff;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            touch-action: manipulation;
+        }
+        #cheat-toggle-btn:active {
+            background: rgba(255, 0, 255, 0.6);
+            transform: scale(0.95);
+        }
+        #cheat-toggle-btn.active {
+            background: rgba(255, 0, 255, 0.6);
+        }
+        
+        /* Airbreak touch controls */
+        #airbreak-touch-controls {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 10001;
+            touch-action: none;
+        }
+        #airbreak-touch-controls.active {
+            display: block;
+        }
+        .airbreak-joystick {
+            width: 120px;
+            height: 120px;
+            background: rgba(0, 255, 255, 0.2);
+            border: 2px solid #0ff;
+            border-radius: 50%;
+            position: relative;
+            touch-action: none;
+        }
+        .airbreak-joystick-knob {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 255, 255, 0.6);
+            border: 2px solid #0ff;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+        }
+        .airbreak-vertical-btns {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10001;
+        }
+        .airbreak-v-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 255, 255, 0.2);
+            border: 2px solid #0ff;
+            border-radius: 10px;
+            color: #0ff;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+        .airbreak-v-btn:active {
+            background: rgba(0, 255, 255, 0.5);
+        }
+        #airbreak-toggle-fly {
+            position: fixed;
+            bottom: 160px;
+            right: 20px;
+            width: 80px;
+            height: 40px;
+            background: rgba(255, 255, 0, 0.2);
+            border: 2px solid #ff0;
+            border-radius: 10px;
+            color: #ff0;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10001;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+        }
+        #airbreak-toggle-fly.active {
+            background: rgba(255, 255, 0, 0.5);
+        }
+        #airbreak-toggle-fly.visible {
+            display: flex;
         }
         #cheat-engine-ui h1 {
             font-size: 18px;
@@ -58,15 +174,17 @@
             cursor: pointer;
             transition: all 0.1s;
             text-transform: uppercase;
-            font-size: 10px;
+            font-size: ${isTouch ? '12px' : '10px'};
+            min-height: ${isTouch ? '44px' : 'auto'};
+            touch-action: manipulation;
         }
-        #cheat-engine-ui button:hover {
+        #cheat-engine-ui button:hover, #cheat-engine-ui button:active {
             background: #ff00ff;
             color: #000;
             border-color: #ff00ff;
         }
         #cheat-engine-ui .results {
-            max-height: 120px;
+            max-height: ${isTouch ? '150px' : '120px'};
             overflow-y: auto;
             background: rgba(0,0,0,0.3);
             border: 1px solid #222;
@@ -74,23 +192,46 @@
         .cheat-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 4px;
+            gap: ${isTouch ? '8px' : '4px'};
         }
         .cheat-cat {
-            font-size: 11px;
+            font-size: ${isTouch ? '13px' : '11px'};
             color: #0ff;
-            margin-top: 10px;
+            margin-top: ${isTouch ? '15px' : '10px'};
             text-transform: uppercase;
         }
         .cheat-btn {
             background: transparent !important;
             border: 1px solid #444 !important;
             text-align: left;
+            padding: ${isTouch ? '12px 10px' : '6px 10px'};
         }
-        .cheat-btn:hover {
+        .cheat-btn:hover, .cheat-btn:active {
             border-color: #0ff !important;
             color: #0ff !important;
             background: rgba(0, 255, 255, 0.1) !important;
+        }
+        
+        /* Close button for touch */
+        #cheat-close-btn {
+            display: ${isTouch ? 'flex' : 'none'};
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 0, 0, 0.3);
+            border: 2px solid #f00;
+            border-radius: 50%;
+            color: #f00;
+            font-size: 20px;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
+        #cheat-close-btn:active {
+            background: rgba(255, 0, 0, 0.6);
         }
         ::-webkit-scrollbar {
             width: 4px;
@@ -104,9 +245,44 @@
     `;
     document.head.appendChild(style);
 
+    // Create touch toggle button
+    const toggleBtn = document.createElement('div');
+    toggleBtn.id = 'cheat-toggle-btn';
+    toggleBtn.innerHTML = '⚙';
+    toggleBtn.title = 'Open Cheat Menu';
+    document.body.appendChild(toggleBtn);
+
+    // Create airbreak touch controls
+    const airbreakTouchControls = document.createElement('div');
+    airbreakTouchControls.id = 'airbreak-touch-controls';
+    airbreakTouchControls.innerHTML = `
+        <div class="airbreak-joystick" id="airbreak-joystick">
+            <div class="airbreak-joystick-knob" id="airbreak-joystick-knob"></div>
+        </div>
+    `;
+    document.body.appendChild(airbreakTouchControls);
+
+    // Create vertical buttons for airbreak (up/down)
+    const airbreakVerticalBtns = document.createElement('div');
+    airbreakVerticalBtns.className = 'airbreak-vertical-btns';
+    airbreakVerticalBtns.id = 'airbreak-vertical-btns';
+    airbreakVerticalBtns.innerHTML = `
+        <div class="airbreak-v-btn" id="airbreak-up-btn">↑</div>
+        <div class="airbreak-v-btn" id="airbreak-down-btn">↓</div>
+    `;
+    airbreakVerticalBtns.style.display = 'none';
+    document.body.appendChild(airbreakVerticalBtns);
+
+    // Create fly toggle button for touch
+    const flyToggleBtn = document.createElement('div');
+    flyToggleBtn.id = 'airbreak-toggle-fly';
+    flyToggleBtn.innerHTML = 'FLY';
+    document.body.appendChild(flyToggleBtn);
+
     const ui = document.createElement('div');
     ui.id = 'cheat-engine-ui';
     ui.innerHTML = `
+        <div id="cheat-close-btn">✕</div>
         <h1>Cheat Engine</h1>
         
         <div class="ce-section">
@@ -337,6 +513,7 @@
     function toggleMenu() {
         menuOpen = !menuOpen;
         ui.style.display = menuOpen ? 'flex' : 'none';
+        toggleBtn.classList.toggle('active', menuOpen);
         
         if (menuOpen) {
             if (document.pointerLockElement) document.exitPointerLock();
@@ -348,6 +525,7 @@
         }
     }
 
+    // Keyboard toggle (F3)
     window.addEventListener('keydown', (e) => {
         if (e.key === 'F3') {
             e.preventDefault();
@@ -355,6 +533,116 @@
             toggleMenu();
         }
     }, true);
+
+    // Touch toggle button handler with drag support
+    let toggleBtnDragging = false;
+    let toggleBtnStartX = 0;
+    let toggleBtnStartY = 0;
+    let toggleBtnInitialLeft = 0;
+    let toggleBtnInitialTop = 0;
+    const dragThreshold = 10; // pixels to move before considered a drag
+    
+    // Load saved position from localStorage
+    const savedPos = localStorage.getItem('cheat-toggle-pos');
+    if (savedPos) {
+        try {
+            const pos = JSON.parse(savedPos);
+            toggleBtn.style.right = 'auto';
+            toggleBtn.style.left = pos.left + 'px';
+            toggleBtn.style.top = pos.top + 'px';
+        } catch(e) {}
+    }
+    
+    toggleBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!toggleBtnDragging) {
+            toggleMenu();
+        }
+    });
+    
+    if (isTouch) {
+        toggleBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleBtnDragging = false;
+            
+            const touch = e.touches[0];
+            toggleBtnStartX = touch.clientX;
+            toggleBtnStartY = touch.clientY;
+            
+            // Get current position
+            const rect = toggleBtn.getBoundingClientRect();
+            toggleBtnInitialLeft = rect.left;
+            toggleBtnInitialTop = rect.top;
+        }, { passive: false });
+        
+        toggleBtn.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - toggleBtnStartX;
+            const deltaY = touch.clientY - toggleBtnStartY;
+            
+            // Check if we've moved enough to consider it a drag
+            if (Math.abs(deltaX) > dragThreshold || Math.abs(deltaY) > dragThreshold) {
+                toggleBtnDragging = true;
+            }
+            
+            if (toggleBtnDragging) {
+                let newLeft = toggleBtnInitialLeft + deltaX;
+                let newTop = toggleBtnInitialTop + deltaY;
+                
+                // Clamp to screen bounds
+                const btnWidth = toggleBtn.offsetWidth;
+                const btnHeight = toggleBtn.offsetHeight;
+                newLeft = Math.max(0, Math.min(window.innerWidth - btnWidth, newLeft));
+                newTop = Math.max(0, Math.min(window.innerHeight - btnHeight, newTop));
+                
+                toggleBtn.style.right = 'auto';
+                toggleBtn.style.left = newLeft + 'px';
+                toggleBtn.style.top = newTop + 'px';
+            }
+        }, { passive: false });
+        
+        toggleBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (toggleBtnDragging) {
+                // Save position
+                const rect = toggleBtn.getBoundingClientRect();
+                localStorage.setItem('cheat-toggle-pos', JSON.stringify({
+                    left: rect.left,
+                    top: rect.top
+                }));
+            } else {
+                // It was a tap, not a drag - toggle menu
+                toggleMenu();
+            }
+            
+            toggleBtnDragging = false;
+        }, { passive: false });
+    }
+    
+    // Close button handler (works for both touch and click)
+    const closeBtn = document.getElementById('cheat-close-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleMenu();
+        });
+        
+        if (isTouch) {
+            closeBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleMenu();
+            }, { passive: false });
+        }
+    }
 
     window.addEventListener('keydown', (e) => {
         if (menuOpen && e.target.tagName === 'INPUT') e.stopPropagation();
@@ -366,6 +654,17 @@
         if (menuOpen && e.target.tagName === 'INPUT') e.stopPropagation();
     }, true);
     window.addEventListener('mousedown', (e) => {
+        if (menuOpen && ui.contains(e.target)) e.stopPropagation();
+    }, true);
+    
+    // Touch event handling for menu
+    window.addEventListener('touchstart', (e) => {
+        if (menuOpen && ui.contains(e.target)) e.stopPropagation();
+    }, true);
+    window.addEventListener('touchmove', (e) => {
+        if (menuOpen && ui.contains(e.target)) e.stopPropagation();
+    }, true);
+    window.addEventListener('touchend', (e) => {
         if (menuOpen && ui.contains(e.target)) e.stopPropagation();
     }, true);
 
@@ -971,5 +1270,244 @@
     document.getElementById('ce-fly-speed').onchange = () => {
         flySpeed = parseFloat(document.getElementById('ce-fly-speed').value) || 2.0;
     };
+
+    // ========== TOUCH CONTROLS FOR AIRBREAK ==========
+    
+    if (isTouch) {
+        const joystick = document.getElementById('airbreak-joystick');
+        const joystickKnob = document.getElementById('airbreak-joystick-knob');
+        const upBtn = document.getElementById('airbreak-up-btn');
+        const downBtn = document.getElementById('airbreak-down-btn');
+        const verticalBtns = document.getElementById('airbreak-vertical-btns');
+        
+        let joystickActive = false;
+        let joystickCenterX = 0;
+        let joystickCenterY = 0;
+        const joystickRadius = 60; // Half of the joystick width
+        const deadzone = 15;
+        
+        // Update visibility of touch controls based on airbreak state
+        function updateTouchControlsVisibility() {
+            if (airbreakConfigured && airbreakEnabled) {
+                airbreakTouchControls.classList.add('active');
+                verticalBtns.style.display = 'flex';
+            } else {
+                airbreakTouchControls.classList.remove('active');
+                verticalBtns.style.display = 'none';
+            }
+            
+            // Show fly toggle button when configured
+            if (airbreakConfigured) {
+                flyToggleBtn.classList.add('visible');
+                flyToggleBtn.classList.toggle('active', airbreakEnabled);
+                flyToggleBtn.textContent = airbreakEnabled ? 'STOP' : 'FLY';
+            } else {
+                flyToggleBtn.classList.remove('visible');
+            }
+        }
+        
+        // Fly toggle button with drag support
+        let flyBtnDragging = false;
+        let flyBtnStartX = 0;
+        let flyBtnStartY = 0;
+        let flyBtnInitialRight = 0;
+        let flyBtnInitialBottom = 0;
+        
+        // Load saved fly button position
+        const savedFlyPos = localStorage.getItem('cheat-fly-pos');
+        if (savedFlyPos) {
+            try {
+                const pos = JSON.parse(savedFlyPos);
+                flyToggleBtn.style.right = pos.right + 'px';
+                flyToggleBtn.style.bottom = pos.bottom + 'px';
+            } catch(e) {}
+        }
+        
+        flyToggleBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            flyBtnDragging = false;
+            
+            const touch = e.touches[0];
+            flyBtnStartX = touch.clientX;
+            flyBtnStartY = touch.clientY;
+            
+            // Get current position (calculate from right/bottom)
+            const rect = flyToggleBtn.getBoundingClientRect();
+            flyBtnInitialRight = window.innerWidth - rect.right;
+            flyBtnInitialBottom = window.innerHeight - rect.bottom;
+        }, { passive: false });
+        
+        flyToggleBtn.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - flyBtnStartX;
+            const deltaY = touch.clientY - flyBtnStartY;
+            
+            // Check if we've moved enough to consider it a drag
+            if (Math.abs(deltaX) > dragThreshold || Math.abs(deltaY) > dragThreshold) {
+                flyBtnDragging = true;
+            }
+            
+            if (flyBtnDragging) {
+                let newRight = flyBtnInitialRight - deltaX;
+                let newBottom = flyBtnInitialBottom - deltaY;
+                
+                // Clamp to screen bounds
+                const btnWidth = flyToggleBtn.offsetWidth;
+                const btnHeight = flyToggleBtn.offsetHeight;
+                newRight = Math.max(0, Math.min(window.innerWidth - btnWidth, newRight));
+                newBottom = Math.max(0, Math.min(window.innerHeight - btnHeight, newBottom));
+                
+                flyToggleBtn.style.right = newRight + 'px';
+                flyToggleBtn.style.bottom = newBottom + 'px';
+            }
+        }, { passive: false });
+        
+        flyToggleBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (flyBtnDragging) {
+                // Save position
+                const rect = flyToggleBtn.getBoundingClientRect();
+                localStorage.setItem('cheat-fly-pos', JSON.stringify({
+                    right: window.innerWidth - rect.right,
+                    bottom: window.innerHeight - rect.bottom
+                }));
+            } else {
+                // It was a tap, not a drag - toggle fly mode
+                if (airbreakConfigured) {
+                    airbreakEnabled = !airbreakEnabled;
+                    
+                    if (airbreakEnabled) {
+                        const view = getView();
+                        lockedZ = view.getFloat32(positionAddr + 8, true);
+                        lockedHealth = view.getFloat32(healthAddr, true);
+                        console.log(`[AirBreak Touch] ENABLED - Locked Z=${lockedZ.toFixed(2)}, HP=${lockedHealth.toFixed(2)}`);
+                    }
+                    
+                    document.getElementById('ce-airbreak-status').textContent =
+                        airbreakEnabled ?
+                        `FLYING! Z=${lockedZ.toFixed(1)} HP=${lockedHealth.toFixed(0)}` :
+                        `Ready! [Tap FLY]`;
+                    document.getElementById('ce-airbreak-status').style.color = airbreakEnabled ? '#ff0' : '#0f0';
+                    
+                    updateTouchControlsVisibility();
+                }
+            }
+            
+            flyBtnDragging = false;
+        }, { passive: false });
+        
+        // Joystick touch handling
+        joystick.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            joystickActive = true;
+            
+            const rect = joystick.getBoundingClientRect();
+            joystickCenterX = rect.left + rect.width / 2;
+            joystickCenterY = rect.top + rect.height / 2;
+            
+            handleJoystickMove(e.touches[0]);
+        }, { passive: false });
+        
+        joystick.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (joystickActive) {
+                handleJoystickMove(e.touches[0]);
+            }
+        }, { passive: false });
+        
+        joystick.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            joystickActive = false;
+            
+            // Reset knob position
+            joystickKnob.style.transform = 'translate(-50%, -50%)';
+            
+            // Reset movement
+            keysPressed.w = false;
+            keysPressed.s = false;
+            keysPressed.a = false;
+            keysPressed.d = false;
+        }, { passive: false });
+        
+        joystick.addEventListener('touchcancel', (e) => {
+            joystickActive = false;
+            joystickKnob.style.transform = 'translate(-50%, -50%)';
+            keysPressed.w = false;
+            keysPressed.s = false;
+            keysPressed.a = false;
+            keysPressed.d = false;
+        });
+        
+        function handleJoystickMove(touch) {
+            let deltaX = touch.clientX - joystickCenterX;
+            let deltaY = touch.clientY - joystickCenterY;
+            
+            // Clamp to radius
+            const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+            if (distance > joystickRadius) {
+                deltaX = (deltaX / distance) * joystickRadius;
+                deltaY = (deltaY / distance) * joystickRadius;
+            }
+            
+            // Move knob
+            joystickKnob.style.transform = `translate(calc(-50% + ${deltaX}px), calc(-50% + ${deltaY}px))`;
+            
+            // Apply movement (with deadzone)
+            keysPressed.w = deltaY < -deadzone;
+            keysPressed.s = deltaY > deadzone;
+            keysPressed.a = deltaX < -deadzone;
+            keysPressed.d = deltaX > deadzone;
+        }
+        
+        // Up/Down buttons for vertical movement
+        upBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            keysPressed.space = true;
+        }, { passive: false });
+        
+        upBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keysPressed.space = false;
+        }, { passive: false });
+        
+        upBtn.addEventListener('touchcancel', () => {
+            keysPressed.space = false;
+        });
+        
+        downBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            keysPressed.shift = true;
+        }, { passive: false });
+        
+        downBtn.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            keysPressed.shift = false;
+        }, { passive: false });
+        
+        downBtn.addEventListener('touchcancel', () => {
+            keysPressed.shift = false;
+        });
+        
+        // Monitor airbreak state changes
+        const originalSetupAirbreak = setupAirbreak;
+        setupAirbreak = function() {
+            originalSetupAirbreak();
+            updateTouchControlsVisibility();
+        };
+        document.getElementById('ce-setup-airbreak').onclick = setupAirbreak;
+        
+        // Update controls visibility periodically
+        setInterval(updateTouchControlsVisibility, 500);
+    }
 
 })();

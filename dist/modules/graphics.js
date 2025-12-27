@@ -1,3 +1,21 @@
+// FPS Limiter - читаем max_fps из query params
+const _fpsLimiter = (() => {
+    try {
+        if (maxFPS > 0 && maxFPS <= 240) {
+            console.log(`[FPS Limiter] Enabled: ${maxFPS} FPS`);
+            return {
+                enabled: true,
+                maxFPS: maxFPS,
+                minFrameTime: 1000 / maxFPS,
+                lastFrameTime: 0
+            };
+        }
+    } catch (e) {
+        console.warn('[FPS Limiter] Failed to parse max_fps:', e);
+    }
+    return { enabled: false };
+})();
+
 var EGL = {
     errorCode: 12288,
     defaultDisplayInitialized: false,
@@ -642,6 +660,19 @@ var _eglQueryString = (display, name) => {
     return ret
 };
 var _eglSwapBuffers = (dpy, surface) => {
+    // FPS Limiting logic
+    if (_fpsLimiter.enabled) {
+        const now = performance.now();
+        const elapsed = now - _fpsLimiter.lastFrameTime;
+        if (elapsed < _fpsLimiter.minFrameTime) {
+            const waitUntil = _fpsLimiter.lastFrameTime + _fpsLimiter.minFrameTime;
+            while (performance.now() < waitUntil) {
+                // Frame rate limiting busy-wait
+            }
+        }
+        _fpsLimiter.lastFrameTime = performance.now();
+    }
+
     if (!EGL.defaultDisplayInitialized) {
         EGL.setErrorCode(12289)
     } else if (!GLctx) {

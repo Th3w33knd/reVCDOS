@@ -92,7 +92,7 @@ async def read_index():
 
 app.mount("/", StaticFiles(directory="dist"), name="root")
 
-if __name__ == "__main__":
+def start_server(app=app, host="0.0.0.0", port=args.port):
     import uvicorn
     import webbrowser
     import threading
