@@ -36,7 +36,13 @@ parser.add_argument("--vcsky_cache", action="store_true", default=True, help="Ca
 parser.add_argument("--vcbr_cache", action="store_true", default=True, help="Cache vcbr files locally. If files are not found in the local directory, they will be downloaded from the specified URL and saved to the local directory.")
 parser.add_argument("--cheats", action="store_true", help="Enable cheats in URL")
 parser.add_argument("--open", action="store_true", help="Open browser on start")
+parser.add_argument("--packed", type=str, help="Path or URL to packed archive (.bin)")
+parser.add_argument("--unpacked", type=str, help="Path or URL to unpacked archive folder")
 args = parser.parse_args()
+
+# Global paths for unpacked mode
+VCSKY_LOCAL_PATH = None
+VCBR_LOCAL_PATH = None
 
 
 def _md5_hash(text: str) -> str:
@@ -267,6 +273,10 @@ async def setup_unpacked(source: str) -> tuple:
 
 
 app = FastAPI()
+
+@app.on_event("startup")
+async def startup_event():
+    await init_server()
 
 if args.login and args.password:
     app.add_middleware(BasicAuthMiddleware, username=args.login, password=args.password)

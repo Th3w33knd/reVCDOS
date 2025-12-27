@@ -4,7 +4,7 @@ reVCDOS - HTML5 Port
 
 > **Fast Start:** Run the server in one click using Google Colab. Click the badge above, run the cell, and use the **"Launch Game"** button. The tunnel password will be copied automatically — just paste it on the page that opens.
 
-Web-based port of GTA: Vice City running in browser via WebAssembly.
+Web-based port running in browser via WebAssembly.
 
 You can check which files I made changes in commit section. Only for *educational* purpose only
 
@@ -341,6 +341,116 @@ Force your browser to treat the insecure IP as secure.
 3.  Enable the flag and enter your server's full URL (e.g., `http://100.100.10.10:8000`).
 4.  Relaunch the browser.
 
+## Deploying reVCDOS on Android via Termux
+
+**Objective:** Host the reVCDOS (WebAssembly Port) server locally on an Android device using Termux, bypassing native compilation issues for `pydantic-core`.
+
+**Context:**
+- Environment: Android (Termux)
+- Manager: Manual (Pixi is unsupported on Android)
+- Dependencies: Requires `tur-repo` for pre-built Python wheels to avoid Rust compilation errors.
+
+### Phase 1: System Preparation
+
+1.  **Update Package Repositories**
+    Update the Termux environment to ensure compatibility.
+    ```bash
+    pkg update && pkg upgrade -y
+    ```
+
+2.  **Install Base Dependencies**
+    Install Python, Git, and the Termux User Repository (TUR) helper.
+    ```bash
+    pkg install python git tur-repo -y
+    ```
+
+3.  **Setup Storage Permissions**
+    Grant Termux access to the phone's internal storage (required to move game files).
+    ```bash
+    termux-setup-storage
+    ```
+
+### Phase 2: Project Setup
+
+1.  **Clone Repository**
+    Clone the source code into the home directory.
+    ```bash
+    cd $HOME
+    git clone --depth 1 https://github.com/Th3w33knd/reVCDOS
+    cd reVCDOS
+    ```
+
+2.  **Install Heavy Dependencies (The Fix)**
+    Do **not** run `pip install -r requirements.txt` yet. `pydantic-core` requires Rust compilation which fails on Android. We must use the TUR pre-compiled wheels.
+    ```bash
+    pip install --extra-index-url https://termux-user-repository.github.io/pypi/ pydantic-core pydantic
+    ```
+
+3.  **Install Remaining Dependencies**
+    Now install the rest of the requirements (FastAPI, Uvicorn, etc.).
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+### Phase 3: Asset Population (Manual Step)
+
+**CRITICAL:** The server cannot run without the core WebAssembly data (`vcbr`).
+
+1.  **Download Files:**
+    Download the `vcbr` (Core Data) and `vcsky` (Assets) archives mentioned in the README on your phone's browser.
+
+2.  **Move Files to Termux:**
+    Assuming files are in your phone's `Downloads` folder, move them.
+    *(Note: You must extract them so the structure matches exactly below)*
+
+    **Target Structure:**
+    ```text
+    reVCDOS/
+    ├── vcbr/
+    │   ├── vc-sky-en-v6.data
+    │   ├── vc-sky-en-v6.wasm
+    │   ├── vc-sky-ru-v6.data
+    │   └── vc-sky-ru-v6.wasm
+    ├── vcsky/
+    │   ├── fetched/
+    │   └── ...
+    ```
+
+    **Commands (Example):**
+    ```bash
+    # Copy from Downloads to current folder
+    cp -r /sdcard/Download/vcbr ./
+    cp -r /sdcard/Download/vcsky ./
+    ```
+
+### Phase 4: Execution
+
+Since `pixi` is unavailable, use the direct Python commands. Select **ONE** mode below:
+
+#### Option A: Online Mode (Smart Cache) - **Recommended**
+*Use this if you have the `vcbr` files but want to download audio/textures on demand.*
+```bash
+python server.py --vcsky_cache --vcbr_cache --custom_saves
+```
+
+#### Option B: Offline Mode (Strict)
+*Use this ONLY if you have manually downloaded ALL `vcsky` assets and `vcbr` files.*
+```bash
+python server.py --vcsky_local --vcbr_local --custom_saves
+```
+
+#### Option C: Cheat Mode
+*Enables the cheat menu (F3).*
+```bash
+python server.py --vcsky_cache --vcbr_cache --custom_saves --cheats
+```
+
+### Phase 5: Accessing the Game
+
+1.  Open Chrome or Firefox on the Android device.
+2.  Navigate to: `http://localhost:8000`
+3.  **Note:** Do not close the Termux app; let it run in the background. To stop the server, press `CTRL + C` in Termux.
+
 ## License
 
 MIT. Do what you want (but credit the port authors and me). Not affiliated with Rockstar Games.
@@ -362,6 +472,16 @@ If you find this project useful:
 - **TON / USDT (TON)**  `UQAyBchGEKi9NnNQ3AKMQMuO-SGEhMIAKFAbkwwrsiOPj9Gy`
 
 ## Changelog
+
+### v1.2.2 - Documentation Updates
+*   **Guide**: Added detailed guide for deploying on Android via Termux.
+*   **Docs**: Updated project description to be more generic.
+
+### v1.2.1 - Post-Merge Fixes
+*   **Fix**: Resolved `SyntaxError` in `game.js` by restoring missing IIFE wrapper.
+*   **Fix**: Resolved `ReferenceError` in `index.js` by exposing `currentLanguage` to global scope.
+*   **Fix**: Resolved `server.py` 500 Error by defining missing arguments and global variables.
+*   **Dependency**: Added `aiofiles` to `pixi.toml` and `requirements.txt`.
 
 ### v1.2.0 - Upstream Sync & Fixes
 *   **Upstream Merge**: Merged latest changes from `Lolendor/reVCDOS` (Google Colab support, license, graphics updates).
