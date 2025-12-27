@@ -8,8 +8,8 @@ var wasm_content;
 const params = new URLSearchParams(window.location.search);
 
 // Base URLs
-const replaceFetch = (str) => str.replace("https://cdn.dos.zone/vcsky/", "/vcsky/")
-const replaceBR = "/vcbr/"
+const replaceFetch = (str) => str.replace("https://cdn.dos.zone/vcsky/", "vcsky/")
+const replaceBR = "vcbr/"
 
 const autoFullScreen = true;
 
@@ -98,18 +98,18 @@ let haveOriginalGame = false;
 })();
 
 if (params.get('lang') === 'ru') {
-    data_content = `${replaceBR}vc-sky-ru-v6.data.br`;
-    wasm_content = `${replaceBR}vc-sky-ru-v6.wasm.br`;
+    data_content = `${replaceBR}vc-sky-ru-v6.data`;
+    wasm_content = `${replaceBR}vc-sky-ru-v6.wasm`;
 // } else if (params.get('lang') === 'ru') {
-//     data_content = `${replaceBR}vc-sky-ru-v6.data.br`;
-//     wasm_content = `${replaceBR}vc-sky-ru-v6.wasm.br`;
+//     data_content = `${replaceBR}vc-sky-ru-v6.data`;
+//     wasm_content = `${replaceBR}vc-sky-ru-v6.wasm`;
 } else {
-    data_content = `${replaceBR}vc-sky-en-v6.data.br`;
-    wasm_content = `${replaceBR}vc-sky-en-v6.wasm.br`;
+    data_content = `${replaceBR}vc-sky-en-v6.data`;
+    wasm_content = `${replaceBR}vc-sky-en-v6.wasm`;
 //     data_content = "index.old.data";
 }
-// data_content = `${replaceBR}vc-sky-ru-v6.data.br`;
-// wasm_content = `${replaceBR}vc-sky-ru-v6.wasm.br`;
+// data_content = `${replaceBR}vc-sky-ru-v6.data`;
+// wasm_content = `${replaceBR}vc-sky-ru-v6.wasm`;
 
 async function loadData() {
     let cache;
