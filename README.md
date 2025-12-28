@@ -395,6 +395,7 @@ cd $HOME
 rm -rf reVCDOS # Clear previous attempts
 git clone --depth 1 https://github.com/Th3w33knd/reVCDOS
 cd reVCDOS
+pip install -r requirements.txt
 ```
 
 #### Phase 4: Asset Injection (Manual)
