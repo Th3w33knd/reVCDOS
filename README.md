@@ -343,7 +343,7 @@ Force your browser to treat the insecure IP as secure.
 
 ## Deploying reVCDOS on Android (Termux) via TUR Wheels
 
-### 1. Executive Summary & Problem History
+### 1. Summary & Problem History
 We are deploying the `reVCDOS` (GTA: Vice City WebAssembly) server on Android.
 *   **The Issue:** The dependency `pydantic-core` requires Rust compilation. Compiling natively on Android fails due to memory limits (`LLVM ERROR: out of memory`) and toolchain incompatibilities (`cargo-xwin` errors).
 *   **The Fix:** We bypass compilation entirely by forcing `pip` to download **pre-compiled binaries (wheels)** from the Termux User Repository (TUR).
@@ -373,16 +373,19 @@ pkg install python git openssl-tool -y
 termux-setup-storage
 ```
 
-#### Phase 2: The "Binary-Only" Injection
-Install `pydantic-core` using the custom repository.
-*Note: We strictly exclude `maturin` here because we are using pre-built binaries, so we don't need the build tools.*
+### Phase 2: The "Binary-Only" Injection (VPN Required)
+*Objective: Force pip to find a pre-compiled version of Pydantic that matches the available Pydantic-Core in the Termux repository, bypassing all compilation.*
+
+**⚠️ CRITICAL:** Ensure your **VPN is ON** for this step to avoid connection errors with the custom repository.
 
 ```bash
-# 1. Install pydantic-core binary from TUR (Might require VPN if you are blocked)
-pip install --extra-index-url https://termux-user-repository.github.io/pypi/ --only-binary=:all: pydantic-core
+# 1. Install Pydantic (and automatically resolve Pydantic-Core binary)
+# We use --only-binary=:all: to prevent pip from trying to compile newer, unsupported versions.
+pip install --extra-index-url https://termux-user-repository.github.io/pypi/ --only-binary=:all: pydantic
 
-# 2. Install standard Python dependencies (Pydantic, FastAPI, etc.)
-pip install pydantic fastapi uvicorn httpx python-multipart brotli
+# 2. Install the remaining web server dependencies
+# (Standard pip install is fine here as these are pure Python or standard packages)
+pip install fastapi uvicorn httpx python-multipart brotli
 ```
 
 #### Phase 3: Project Setup
