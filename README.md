@@ -344,7 +344,7 @@ Force your browser to treat the insecure IP as secure.
 ## Deploying reVCDOS on Android (Termux) via TUR Wheels
 
 ### 1. Summary & Problem History
-We are deploying the `reVCDOS` (GTA: Vice City WebAssembly) server on Android.
+We are deploying the `reVCDOS` (WebAssembly) server on Android.
 *   **The Issue:** The dependency `pydantic-core` requires Rust compilation. Compiling natively on Android fails due to memory limits (`LLVM ERROR: out of memory`) and toolchain incompatibilities (`cargo-xwin` errors).
 *   **The Fix:** We bypass compilation entirely by forcing `pip` to download **pre-compiled binaries (wheels)** from the Termux User Repository (TUR).
 *   **Network Requirement:** A **VPN** is required because some ISPs block the TUR repository, causing `SSL connect errors`.
