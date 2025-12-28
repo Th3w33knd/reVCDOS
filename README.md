@@ -341,115 +341,92 @@ Force your browser to treat the insecure IP as secure.
 3.  Enable the flag and enter your server's full URL (e.g., `http://100.100.10.10:8000`).
 4.  Relaunch the browser.
 
-## Deploying reVCDOS on Android via Termux
+## Deploying reVCDOS on Android (Termux) via TUR Wheels
 
-**Objective:** Host the reVCDOS (WebAssembly Port) server locally on an Android device using Termux, bypassing native compilation issues for `pydantic-core`.
+### 1. Executive Summary & Problem History
+We are deploying the `reVCDOS` (GTA: Vice City WebAssembly) server on Android.
+*   **The Issue:** The dependency `pydantic-core` requires Rust compilation. Compiling natively on Android fails due to memory limits (`LLVM ERROR: out of memory`) and toolchain incompatibilities (`cargo-xwin` errors).
+*   **The Fix:** We bypass compilation entirely by forcing `pip` to download **pre-compiled binaries (wheels)** from the Termux User Repository (TUR).
+*   **Network Requirement:** A **VPN** is required because some ISPs block the TUR repository, causing `SSL connect errors`.
 
-**Context:**
-- Environment: Android (Termux)
-- Manager: Manual (Pixi is unsupported on Android)
-- Dependencies: Requires `tur-repo` for pre-built Python wheels to avoid Rust compilation errors.
+---
 
-### Phase 1: System Preparation
+### 2. Prerequisites
+1.  **Android Device** with Termux (F-Droid version).
+2.  **VPN Active:** Essential to prevent connection errors to the custom repository.
+3.  **Game Files:** `vcbr` and `vcsky` folders extracted in `/sdcard/Download`.
 
-1.  **Update Package Repositories**
-    Update the Termux environment to ensure compatibility.
-    ```bash
-    pkg update && pkg upgrade -y
-    ```
+---
 
-2.  **Install Base Dependencies**
-    Install Python, Git, and the Termux User Repository (TUR) helper.
-    ```bash
-    pkg install python git tur-repo -y
-    ```
+### 3. Deployment Protocol
 
-3.  **Setup Storage Permissions**
-    Grant Termux access to the phone's internal storage (required to move game files).
-    ```bash
-    termux-setup-storage
-    ```
-
-### Phase 2: Project Setup
-
-1.  **Clone Repository**
-    Clone the source code into the home directory.
-    ```bash
-    cd $HOME
-    git clone --depth 1 https://github.com/Th3w33knd/reVCDOS
-    cd reVCDOS
-    ```
-
-2.  **Install Heavy Dependencies (The Fix)**
-    Do **not** run `pip install -r requirements.txt` yet. `pydantic-core` requires Rust compilation which fails on Android. We must use the TUR pre-compiled wheels.
-    ```bash
-    pip install --extra-index-url https://termux-user-repository.github.io/pypi/ pydantic-core pydantic
-    ```
-
-3.  **Install Remaining Dependencies**
-    Now install the rest of the requirements (FastAPI, Uvicorn, etc.).
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-### Phase 3: Asset Population (Manual Step)
-
-**CRITICAL:** The server cannot run without the core WebAssembly data (`vcbr`).
-
-1.  **Download Files:**
-    Download the `vcbr` (Core Data) and `vcsky` (Assets) archives mentioned in the README on your phone's browser.
-
-2.  **Move Files to Termux:**
-    Assuming files are in your phone's `Downloads` folder, move them.
-    *(Note: You must extract them so the structure matches exactly below)*
-
-    **Target Structure:**
-    ```text
-    reVCDOS/
-    ├── vcbr/
-    │   ├── vc-sky-en-v6.data
-    │   ├── vc-sky-en-v6.wasm
-    │   ├── vc-sky-ru-v6.data
-    │   └── vc-sky-ru-v6.wasm
-    ├── vcsky/
-    │   ├── fetched/
-    │   └── ...
-    ```
-
-    **Commands (Example):**
-    ```bash
-    # Copy from Downloads to current folder
-    cp -r /sdcard/Download/vcbr ./
-    cp -r /sdcard/Download/vcsky ./
-    ```
-
-### Phase 4: Execution
-
-Since `pixi` is unavailable, use the direct Python commands. Select **ONE** mode below:
-
-#### Option A: Online Mode (Smart Cache) - **Recommended**
-*Use this if you have the `vcbr` files but want to download audio/textures on demand.*
+#### Phase 1: Environment Initialization
+Update the system and install base tools.
 ```bash
-python server.py --vcsky_cache --vcbr_cache --custom_saves
+# Update system
+pkg update && pkg upgrade -y
+
+# Install Python, Git, and SSL tools
+pkg install python git openssl-tool -y
+
+# Grant storage access (Tap 'Allow' on screen)
+termux-setup-storage
 ```
 
-#### Option B: Offline Mode (Strict)
-*Use this ONLY if you have manually downloaded ALL `vcsky` assets and `vcbr` files.*
+#### Phase 2: The "Binary-Only" Injection
+Install `pydantic-core` using the custom repository.
+*Note: We strictly exclude `maturin` here because we are using pre-built binaries, so we don't need the build tools.*
+
+```bash
+# 1. Install pydantic-core binary from TUR (Might require VPN if you are blocked)
+pip install --extra-index-url https://termux-user-repository.github.io/pypi/ --only-binary=:all: pydantic-core
+
+# 2. Install standard Python dependencies (Pydantic, FastAPI, etc.)
+pip install pydantic fastapi uvicorn httpx python-multipart brotli
+```
+
+#### Phase 3: Project Setup
+Clone the game server code.
+```bash
+cd $HOME
+rm -rf reVCDOS # Clear previous attempts
+git clone --depth 1 https://github.com/Th3w33knd/reVCDOS
+cd reVCDOS
+```
+
+#### Phase 4: Asset Injection (Manual)
+Import the game assets from internal storage.
+```bash
+# Copy Core Data (vcbr) - The game logic
+cp -r /sdcard/Download/vcbr ./
+
+# Copy Assets (vcsky) - Audio and textures (Optional)
+cp -r /sdcard/Download/vcsky ./
+```
+
+#### Phase 5: Server Execution
+Run the server in offline/local mode to ensure it uses the files we just copied.
 ```bash
 python server.py --vcsky_local --vcbr_local --custom_saves
 ```
 
-#### Option C: Cheat Mode
-*Enables the cheat menu (F3).*
-```bash
-python server.py --vcsky_cache --vcbr_cache --custom_saves --cheats
-```
+---
 
-### Phase 5: Accessing the Game
+### 4. Known Error States & Fixes
 
-1.  Open Chrome or Firefox on the Android device.
-2.  Navigate to: `http://localhost:8000`
-3.  **Note:** Do not close the Termux app; let it run in the background. To stop the server, press `CTRL + C` in Termux.
+| Symptom | Cause | Fix |
+| :--- | :--- | :--- |
+| `SSL connect error` / `No matching distribution` | ISP blocking TUR Repo | **Turn on VPN** and retry Phase 2. |
+| `Linker command failed` / `Aborted` | Pip tried to compile source | Ensure you used `--only-binary=:all:` in Phase 2. |
+| `Could not find version for maturin` | Maturin isn't in TUR | **Ignore it.** We don't need `maturin` when using binaries. Remove it from the install command. |
+| Black Screen in Browser | Missing Game Files | Re-run Phase 4. Ensure `vcbr` folder contains `.wasm` files. |
+
+---
+
+### 5. Final Success State
+*   Server is running in Termux.
+*   User opens Chrome to `http://localhost:8000`.
+*   Game loads without compilation errors.
 
 ## License
 
