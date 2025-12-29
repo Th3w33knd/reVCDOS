@@ -117,7 +117,8 @@ if (params.get('lang') === 'ru') {
     //     data_content = `${replaceBR}vc-sky-ru-v6.data`;
     //     wasm_content = `${replaceBR}vc-sky-ru-v6.wasm`;
 } else {
-    data_content = `${replaceBR}vc-sky-en-v6.data`;
+    // [LZMA] Use the XZ compressed file for English
+    data_content = `${replaceBR}custom.data.xz`;
     wasm_content = `${replaceBR}vc-sky-en-v6.wasm`;
     //     data_content = "index.old.data";
 }
@@ -125,47 +126,86 @@ if (params.get('lang') === 'ru') {
 // wasm_content = `${replaceBR}vc-sky-ru-v6.wasm`;
 
 async function loadData() {
+    // [LZMA] Logic Update:
+    // 1. We want to cache the UNCOMPRESSED data to avoid costly decompression on every reload.
+    // 2. data_content now points to .xz (if English).
+
+    // Define the cache key. If it's the XZ file, we want to store it as the original .data name
+    // so it looks like a normal uncompressed file in cache.
+    let cacheKey = data_content;
+    if (data_content.endsWith('.xz')) {
+        cacheKey = data_content.replace('.xz', ''); // custom.data
+    }
+
     let cache;
     try {
         cache = await caches.open(location.hostname);
-        const cached = await cache.match(data_content);
-        if (cached && data_content !== "index.data") {
+        const cached = await cache.match(cacheKey);
+        if (cached) {
+            console.log("[LZMA] Found uncompressed data in cache");
             return new Uint8Array(await cached.arrayBuffer());
         }
     } catch (e) {
         console.error('Failed to open cache:', e);
     }
-    const response = await fetch(data_content);
 
-    const reader = response.body.getReader();
-    let receivedLength = 0;
-    let chunks = [];
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-            break;
+    // Not in cache, implies we need to download and maybe decompress
+    const response = await fetch(data_content);
+    if (!response.ok) throw new Error(`Failed to fetch ${data_content}`);
+
+    let buffer;
+
+    // Check if we need to decompress
+    if (data_content.endsWith('.xz')) {
+        setStatus("Initializing Decompressor (LZMA2)...");
+
+        // Ensure the library is loaded
+        if (typeof xzwasm === 'undefined' || !xzwasm.XzReadableStream) {
+            throw new Error("XZWasm library not loaded! Check index.html");
         }
-        chunks.push(value);
-        receivedLength += value.length;
-        if (typeof setStatus === "function") {
-            setStatus(`Downloading...(${receivedLength}/${dataSize})`);
+
+        setStatus("Downloading and Decompressing...");
+
+        // Use the global xzwasm object
+        const decompressedStream = new xzwasm.XzReadableStream(response.body);
+        const newResponse = new Response(decompressedStream);
+        buffer = await newResponse.arrayBuffer();
+
+        console.log(`[LZMA] Decompressed size: ${buffer.byteLength}`);
+    } else {
+        // Standard non-compressed loading (for Russian or legacy)
+        const reader = response.body.getReader();
+        let receivedLength = 0;
+        let chunks = [];
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            chunks.push(value);
+            receivedLength += value.length;
+            if (typeof setStatus === "function") {
+                setStatus(`Downloading...(${receivedLength}/${dataSize})`);
+            }
         }
+        let tempBuffer = new Uint8Array(receivedLength);
+        let position = 0;
+        for (let chunk of chunks) {
+            tempBuffer.set(chunk, position);
+            position += chunk.length;
+        }
+        buffer = tempBuffer.buffer;
     }
-    let buffer = new Uint8Array(receivedLength);
-    let position = 0;
-    for (let chunk of chunks) {
-        buffer.set(chunk, position);
-        position += chunk.length;
-    }
-    buffer = buffer.buffer;
+
     if (cache) {
         try {
-            await cache.put(data_content, new Response(buffer, { headers: { 'Content-Type': 'application/octet-stream' } }));
+            // Save the UNCOMPRESSED buffer to cache
+            await cache.put(cacheKey, new Response(buffer, { headers: { 'Content-Type': 'application/octet-stream' } }));
+            console.log("[LZMA] Cached uncompressed data");
         } catch (e) {
             console.error('Failed to cache data:', e.message);
         }
     }
     return new Uint8Array(buffer);
+
 };
 
 async function startGame(e) {
